@@ -125,14 +125,16 @@ public class CombineNImages<T extends RealType<T>> extends ContextCommand {
             double sliceMaximum = opService.stats().max(ts).getRealDouble();
             if(sliceMaximum>maxGreyScaleValue) maxGreyScaleValue=sliceMaximum;
         }
-        double weight = 1.0/nImages;
+
+        double maxPossibleValue = 255.0;
         if(maxGreyScaleValue>255.0) {
-            logService.info("Max stack grey scale value is "+maxGreyScaleValue+". Assuming 16-bit image.");
-            weight = weight / Math.pow(2, 8);
+            logService.info("Max stack grey scale value is "+maxGreyScaleValue+". Assuming 16-bit grey scale image.");
+            maxPossibleValue=65535.0;
         }
         else{
-            logService.info("Max stack grey scale value is "+maxGreyScaleValue+"<255. Assuming 8-bit image.");
+            logService.info("Max stack grey scale value is "+maxGreyScaleValue+"<255. Assuming 8-bit grey scale image.");
         }
+        double weight = 3.0/(nImages*maxPossibleValue);
 
         Img<DoubleType> interpolatedRed = ArrayImgs.doubles(images.get(0).dimension(0), images.get(0).dimension(1), 1);
         Img<DoubleType> interpolatedGreen = ArrayImgs.doubles(images.get(0).dimension(0), images.get(0).dimension(1), 1);
@@ -147,7 +149,7 @@ public class CombineNImages<T extends RealType<T>> extends ContextCommand {
                 for(int m = 0; m<slice.max(1)+1; m++){
                     long[] position = new long[]{l,m,k};
                     randomAccess.setPosition(position);
-                    double localValue = randomAccess.get().getRealDouble()/(Math.pow(2,8)-1);
+                    double localValue = randomAccess.get().getRealDouble();
                     position[2]=0;
                     addValueAtPosition(interpolatedRed, weight*rgb.getRed()*localValue,position);
                     addValueAtPosition(interpolatedGreen, weight*rgb.getGreen()*localValue,position);

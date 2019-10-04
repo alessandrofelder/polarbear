@@ -125,10 +125,10 @@ public class CombineNImagesOld<T extends RealType<T>> extends ContextCommand {
             double sliceMaximum = opService.stats().max(ts).getRealDouble();
             if(sliceMaximum>maxGreyScaleValue) maxGreyScaleValue=sliceMaximum;
         }
-        double weight = 1.0/nImages*12;
+        double weight = 1.0/nImages;
         if(maxGreyScaleValue>255.0) {
             logService.info("Max stack grey scale value is "+maxGreyScaleValue+". Assuming 16-bit image.");
-            weight = weight / Math.pow(2, 8);
+            weight = weight / Math.pow(2, 8) * 3;
         }
         else{
             logService.info("Max stack grey scale value is "+maxGreyScaleValue+"<255. Assuming 8-bit image.");
